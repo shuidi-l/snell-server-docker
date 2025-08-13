@@ -1,10 +1,15 @@
-name: Build & Push (amd64/arm64)
+name: Build & Push
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - "release/*"
     tags: [ "v*" ]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -43,7 +48,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/snell
+          images: ghcr.io/${{ github.repository_owner }}/snell-server
           tags: |
             type=ref,event=branch
             type=ref,event=tag
