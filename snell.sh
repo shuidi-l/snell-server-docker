@@ -12,9 +12,10 @@ random_port() {
 # 
 PORT="${PORT:-$(random_port)}"
 PSK="${PSK:-$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)}"
-IPv6="${IPv6:-false}"
-OBFS="${OBFS:-http}"
-OBFS_HOST="${OBFS_HOST:-gateway.icloud.com}"
+# Only set optional values if provided via environment; otherwise keep empty
+IPv6="${IPv6-}"
+OBFS="${OBFS-}"
+OBFS_HOST="${OBFS_HOST-}"
 TFO="${TFO:-true}"
 
 ensure() {
@@ -29,14 +30,46 @@ ensure() {
     echo "PORT out of range: ${PORT} (must be 1025–65535)" >&2
     exit 1
   fi
+
+  # Validate IPv6 value if provided
+  if [[ -n "${IPv6}" ]]; then
+    case "${IPv6}" in
+      true|false)
+        # Valid value, continue
+        ;;
+      *)
+        echo "Invalid IPv6: ${IPv6} (must be 'true' or 'false')" >&2
+        exit 1
+        ;;
+    esac
+  fi
+
+  # Validate OBFS value if provided
+  if [[ -n "${OBFS}" ]]; then
+    case "${OBFS}" in
+      off|http)
+        # Valid value, continue
+        ;;
+      *)
+        echo "Invalid OBFS: ${OBFS} (must be 'off' or 'http')" >&2
+        exit 1
+        ;;
+    esac
+  fi
 }
 
 print_start_info() {
   echo "==> Starting Snell"
   echo "PORT: ${PORT}"
   echo "PSK: ${PSK}"
-  # Print OBFS_HOST if OBFS isn't equal to false
-  if [[ "$OBFS" != "false" ]]; then
+  # Print optional fields only when set
+  if [[ -n "${IPv6}" ]]; then
+    echo "IPv6: ${IPv6}"
+  fi
+  if [[ -n "${OBFS}" ]]; then
+    echo "OBFS: ${OBFS}"
+  fi
+  if [[ "${OBFS}" == "http" && -n "${OBFS_HOST}" ]]; then
     echo "OBFS_HOST: ${OBFS_HOST}"
   fi
 }
@@ -47,11 +80,21 @@ write_config() {
 [snell-server]
 listen = 0.0.0.0:${PORT}
 psk = ${PSK}
-ipv6 = ${IPv6}
-obfs = ${OBFS}
-obfs-host = ${OBFS_HOST}
-tfo = ${TFO}
 EOF
+
+  # Conditionally write optional fields
+  if [[ -n "${IPv6}" ]]; then
+    echo "ipv6 = ${IPv6}" >>"$CONF"
+  fi
+
+  if [[ -n "${OBFS}" ]]; then
+    echo "obfs = ${OBFS}" >>"$CONF"
+    if [[ "${OBFS}" == "http" && -n "${OBFS_HOST}" ]]; then
+      echo "obfs-host = ${OBFS_HOST}" >>"$CONF"
+    fi
+  fi
+
+  echo "tfo = ${TFO}" >>"$CONF"
 }
 
 main() {
