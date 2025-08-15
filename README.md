@@ -1,3 +1,7 @@
+<p align="center">
+  <a>English</a> | <a href="README.zh_CN.md">中文</a>
+</p>
+
 # Snell Server Docker Image
 
 A lightweight, multi-architecture (`linux/amd64` and `linux/arm64`) Docker image for Snell Server.  
