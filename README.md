@@ -35,6 +35,7 @@ The server uses conditional configuration writing:
 - **IPv6**: Only written to config if `IPv6` environment variable is set
 - **OBFS**: Only written to config if `OBFS` environment variable is set
 - **OBFS_HOST**: Only written to config if `OBFS=http` and `OBFS_HOST` is set
+- **Existing config file**: If `snell-server.conf` already exists (e.g., mounted via volume), it will be used as-is and the script will skip generating a new one
 
 ## Build the Image
 
@@ -112,6 +113,44 @@ docker run --rm -p 8234:8234 \
   -e TFO=false \
   1byte/snell-server
 ```
+
+## Run with docker-compose
+
+### Quick start
+
+1. Ensure `docker-compose.yml` is in your working directory
+2. Provide environment variables via a `.env` file (recommended) or your shell
+
+Example `.env` (place next to `docker-compose.yml`):
+
+```env
+PORT=8234
+PSK=mysecurepsk
+# IPv6=false
+# TFO=true
+# OBFS=http
+# OBFS_HOST=gateway.icloud.com
+```
+
+Start the service:
+
+```bash
+docker compose up -d
+```
+
+### Use a custom snell-server.conf
+
+If you already have a `snell-server.conf`, mount it and the script will skip auto-generation:
+
+```yaml
+services:
+  snell-server:
+    # ...
+    volumes:
+      - ./snell-server.conf:/app/snell-server.conf
+```
+
+With this volume mount, the container will use your provided config file and ignore environment variables for generation.
 
 ## Error Handling
 

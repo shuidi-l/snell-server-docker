@@ -75,6 +75,11 @@ print_start_info() {
 }
 
 write_config() {
+  # If a config is already provided (e.g., mounted via volume), do not overwrite
+  if [[ -e "$CONF" ]]; then
+    echo "==> Using existing config: $CONF (skipping generation)"
+    return 0
+  fi
   umask 077
   cat >"$CONF" <<EOF
 [snell-server]

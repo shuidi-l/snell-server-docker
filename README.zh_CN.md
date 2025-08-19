@@ -35,6 +35,7 @@
 - **IPv6**：仅在设置 `IPv6` 环境变量时写入配置
 - **OBFS**：仅在设置 `OBFS` 环境变量时写入配置
 - **OBFS_HOST**：仅在 `OBFS=http` 且设置 `OBFS_HOST` 时写入配置
+- **已有配置文件**：如果已经存在 `snell-server.conf`（例如通过 volume 挂载），脚本将直接使用该文件并跳过生成
 
 ## 构建镜像
 
@@ -112,6 +113,44 @@ docker run --rm -p 8234:8234 \
   -e TFO=false \
   1byte/snell-server
 ```
+
+## 使用 docker-compose 运行
+
+### 快速开始
+
+1. 确保 `docker-compose.yml` 位于当前工作目录
+2. 通过 `.env` 文件（推荐）或 Shell 提供环境变量
+
+示例 `.env`（与 `docker-compose.yml` 同目录）：
+
+```env
+PORT=8234
+PSK=mysecurepsk
+# IPv6=false
+# TFO=true
+# OBFS=http
+# OBFS_HOST=gateway.icloud.com
+```
+
+启动服务：
+
+```bash
+docker compose up -d
+```
+
+### 使用自定义 snell-server.conf
+
+如果你已经有 `snell-server.conf`，可通过挂载使用，脚本会跳过自动生成：
+
+```yaml
+services:
+  snell-server:
+    # ...
+    volumes:
+      - ./snell-server.conf:/app/snell-server.conf
+```
+
+启用该挂载后，容器将使用你提供的配置文件，环境变量将不再用于生成配置。
 
 ## 错误处理
 

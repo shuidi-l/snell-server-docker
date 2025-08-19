@@ -1,0 +1,16 @@
+services:
+  snell-server:
+    container_name: snell-server
+    restart: always
+    image: 1byte/snell-server:latest
+    ports:
+      - "${PORT:-8234}:${PORT:-8234}"   # Default to 8234 if PORT is not set
+    environment:
+      PORT: "${PORT}"
+      PSK: "${PSK}"
+      # IPv6: "false"
+      # TFO: "true"
+      # OBFS: "http"        # Set to "false" to disable; any other value enables it
+      # OBFS_HOST: "gateway.icloud.com"
+    # volumes:
+    #   - ./snell-server.conf:/app/snell-server.conf
