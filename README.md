@@ -1,5 +1,5 @@
 <p align="center">
-  <a>English</a> | <a href="README.zh_CN.md">中文</a>
+  <a>English</a> | <a href="https://github.com/shuidi-l/snell-server/blob/main/README.zh_CN.md">中文</a>
 </p>
 
 # Snell Server Docker Image
