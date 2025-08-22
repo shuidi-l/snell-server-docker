@@ -18,7 +18,7 @@ permissions:
   packages: write
 
 env:
-  VERSION=4.1.1
+  VERSION: 4.1.1
 
 jobs:
   build-and-push:
@@ -73,7 +73,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            SNELL_VERSION=${VERSION}
+            SNELL_VERSION=${{ env.VERSION }}
 
       # Update Docker Hub README from repo README.md
       - name: Update Docker Hub README
