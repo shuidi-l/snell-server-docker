@@ -42,15 +42,26 @@
 ### 本地构建：
 
 ```bash
+# 使用默认 Snell 版本构建（5.0.0）
 docker build -t 1byte/snell-server .
+
+# 使用指定 Snell 版本构建
+docker build --build-arg SNELL_VERSION=4.1.1 -t 1byte/snell-server:4.1.1 .
 ```
 
 ### 多架构构建（需要 buildx）：
 
 ```bash
+# 使用默认 Snell 版本构建（5.0.0）
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t 1byte/snell-server:latest .
+
+# 使用指定 Snell 版本构建
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --build-arg SNELL_VERSION=4.1.1 \
+  -t 1byte/snell-server:v4.1.1 .
 ```
 
 ## 运行示例

@@ -42,15 +42,26 @@ The server uses conditional configuration writing:
 ### Local build:
 
 ```bash
+# Build with default Snell version (5.0.0)
 docker build -t 1byte/snell-server .
+
+# Build with specific Snell version
+docker build --build-arg SNELL_VERSION=4.1.1 -t 1byte/snell-server:4.1.1 .
 ```
 
 ### Multi-arch build (requires buildx):
 
 ```bash
+# Build with default Snell version (5.0.0)
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t 1byte/snell-server:latest .
+
+# Build with specific Snell version
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --build-arg SNELL_VERSION=4.1.1 \
+  -t 1byte/snell-server:v4.1.1 .
 ```
 
 ## Run Examples

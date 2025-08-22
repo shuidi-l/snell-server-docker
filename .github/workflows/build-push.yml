@@ -5,6 +5,7 @@ on:
     branches:
       - "release/*"
       - "main"
+      - "feature/*"
     tags: [ "v*" ]
   workflow_dispatch:
 
@@ -15,6 +16,9 @@ concurrency:
 permissions:
   contents: read
   packages: write
+
+env:
+  VERSION=4.1.1
 
 jobs:
   build-and-push:
@@ -55,7 +59,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
-            type=raw,value=latest,enable={{is_default_branch}}
+            #type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build & Push (amd64/arm64)
         uses: docker/build-push-action@v6
@@ -69,7 +73,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            SNELL_VERSION=5.0.0
+            SNELL_VERSION=${VERSION}
 
       # Update Docker Hub README from repo README.md
       - name: Update Docker Hub README
