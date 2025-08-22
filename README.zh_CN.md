@@ -7,6 +7,15 @@
 一个轻量级的、支持多架构（`linux/amd64` 和 `linux/arm64`）的 Snell Server Docker 镜像。  
 支持通过环境变量进行配置，当未提供时使用安全默认值：随机 PSK 和随机端口（>1024）。
 
+## 可用镜像
+
+本项目提供两个来源的 Docker 镜像：
+
+- **Docker Hub**: `1byte/snell-server`
+- **GitHub Container Registry (GHCR)**: `ghcr.io/shuidi-l/snell-server`
+
+两个镜像完全相同，您可以根据偏好选择使用其中一个。
+
 ## 特性
 
 - **多阶段构建** 以获得更小的镜像大小
@@ -37,20 +46,45 @@
 - **OBFS_HOST**：仅在 `OBFS=http` 且设置 `OBFS_HOST` 时写入配置
 - **已有配置文件**：如果已经存在 `snell-server.conf`（例如通过 volume 挂载），脚本将直接使用该文件并跳过生成
 
+## Docker 镜像
+
+### Docker Hub
+
+```bash
+docker pull 1byte/snell-server
+```
+
+### GitHub Container Registry (GHCR)
+
+```bash
+docker pull ghcr.io/shuidi-l/snell-server
+```
+
 ## 构建镜像
 
 ### 本地构建：
 
 ```bash
+# 使用默认 Snell 版本构建（5.0.0）
 docker build -t 1byte/snell-server .
+
+# 使用指定 Snell 版本构建
+docker build --build-arg SNELL_VERSION=4.1.1 -t 1byte/snell-server:4.1.1 .
 ```
 
 ### 多架构构建（需要 buildx）：
 
 ```bash
+# 使用默认 Snell 版本构建（5.0.0）
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t 1byte/snell-server:latest .
+
+# 使用指定 Snell 版本构建
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --build-arg SNELL_VERSION=4.1.1 \
+  -t 1byte/snell-server:v4.1.1 .
 ```
 
 ## 运行示例
@@ -58,52 +92,89 @@ docker buildx build \
 ### 默认配置（随机端口和 PSK）
 
 ```bash
+# 使用 Docker Hub
 docker run --rm 1byte/snell-server
+
+# 使用 GitHub Container Registry
+docker run --rm ghcr.io/shuidi-l/snell-server
 ```
 
 ### 指定端口和 PSK
 
 ```bash
+# 使用 Docker Hub
 docker run --rm -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   1byte/snell-server
+
+# 使用 GitHub Container Registry
+docker run --rm -p 8234:8234 \
+  -e PORT=8234 \
+  -e PSK=mysecurepsk \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### 启用 IPv6
 
 ```bash
+# 使用 Docker Hub
 docker run --rm -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   -e IPv6=true \
   1byte/snell-server
+
+# 使用 GitHub Container Registry
+docker run --rm -p 8234:8234 \
+  -e PORT=8234 \
+  -e PSK=mysecurepsk \
+  -e IPv6=true \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### 启用混淆并自定义主机
 
 ```bash
+# 使用 Docker Hub
 docker run --rm -p 9000:9000 \
   -e PORT=9000 \
   -e PSK=mysecurepsk \
   -e OBFS=http \
   -e OBFS_HOST=my.domain.com \
   1byte/snell-server
+
+# 使用 GitHub Container Registry
+docker run --rm -p 9000:9000 \
+  -e PORT=9000 \
+  -e PSK=mysecurepsk \
+  -e OBFS=http \
+  -e OBFS_HOST=my.domain.com \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### 禁用混淆
 
 ```bash
+# 使用 Docker Hub
 docker run --rm -p 9000:9000 \
   -e PORT=9000 \
   -e PSK=mysecurepsk \
   -e OBFS=off \
   1byte/snell-server
+
+# 使用 GitHub Container Registry
+docker run --rm -p 9000:9000 \
+  -e PORT=9000 \
+  -e PSK=mysecurepsk \
+  -e OBFS=off \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### 完整配置示例
 
 ```bash
+# 使用 Docker Hub
 docker run --rm -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
@@ -112,6 +183,16 @@ docker run --rm -p 8234:8234 \
   -e OBFS_HOST=gateway.icloud.com \
   -e TFO=false \
   1byte/snell-server
+
+# 使用 GitHub Container Registry
+docker run --rm -p 8234:8234 \
+  -e PORT=8234 \
+  -e PSK=mysecurepsk \
+  -e IPv6=true \
+  -e OBFS=http \
+  -e OBFS_HOST=gateway.icloud.com \
+  -e TFO=false \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ## 使用 docker-compose 运行

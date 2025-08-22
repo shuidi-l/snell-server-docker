@@ -7,6 +7,15 @@
 A lightweight, multi-architecture (`linux/amd64` and `linux/arm64`) Docker image for Snell Server.  
 Supports configuration via environment variables, with secure defaults when not provided: random PSK and random port (>1024).
 
+## Available Images
+
+This project provides Docker images from two sources:
+
+- **Docker Hub**: `1byte/snell-server`
+- **GitHub Container Registry (GHCR)**: `ghcr.io/shuidi-l/snell-server`
+
+Both images are identical and you can use either one based on your preference.
+
 ## Features
 
 - **Multi-stage build** for a smaller image size
@@ -37,20 +46,45 @@ The server uses conditional configuration writing:
 - **OBFS_HOST**: Only written to config if `OBFS=http` and `OBFS_HOST` is set
 - **Existing config file**: If `snell-server.conf` already exists (e.g., mounted via volume), it will be used as-is and the script will skip generating a new one
 
+## Docker Images
+
+### Docker Hub
+
+```bash
+docker pull 1byte/snell-server
+```
+
+### GitHub Container Registry (GHCR)
+
+```bash
+docker pull ghcr.io/shuidi-l/snell-server
+```
+
 ## Build the Image
 
 ### Local build:
 
 ```bash
+# Build with default Snell version (5.0.0)
 docker build -t 1byte/snell-server .
+
+# Build with specific Snell version
+docker build --build-arg SNELL_VERSION=4.1.1 -t 1byte/snell-server:4.1.1 .
 ```
 
 ### Multi-arch build (requires buildx):
 
 ```bash
+# Build with default Snell version (5.0.0)
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t 1byte/snell-server:latest .
+
+# Build with specific Snell version
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --build-arg SNELL_VERSION=4.1.1 \
+  -t 1byte/snell-server:v4.1.1 .
 ```
 
 ## Run Examples
@@ -58,52 +92,89 @@ docker buildx build \
 ### Default config (random port & PSK)
 
 ```bash
+# Using Docker Hub
 docker run --rm 1byte/snell-server
+
+# Using GitHub Container Registry
+docker run --rm ghcr.io/shuidi-l/snell-server
 ```
 
 ### Specify port and PSK
 
 ```bash
+# Using Docker Hub
 docker run --rm -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   1byte/snell-server
+
+# Using GitHub Container Registry
+docker run --rm -p 8234:8234 \
+  -e PORT=8234 \
+  -e PSK=mysecurepsk \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### Enable IPv6
 
 ```bash
+# Using Docker Hub
 docker run --rm -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   -e IPv6=true \
   1byte/snell-server
+
+# Using GitHub Container Registry
+docker run --rm -p 8234:8234 \
+  -e PORT=8234 \
+  -e PSK=mysecurepsk \
+  -e IPv6=true \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### Enable obfuscation with custom host
 
 ```bash
+# Using Docker Hub
 docker run --rm -p 9000:9000 \
   -e PORT=9000 \
   -e PSK=mysecurepsk \
   -e OBFS=http \
   -e OBFS_HOST=my.domain.com \
   1byte/snell-server
+
+# Using GitHub Container Registry
+docker run --rm -p 9000:9000 \
+  -e PORT=9000 \
+  -e PSK=mysecurepsk \
+  -e OBFS=http \
+  -e OBFS_HOST=my.domain.com \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### Disable obfuscation
 
 ```bash
+# Using Docker Hub
 docker run --rm -p 9000:9000 \
   -e PORT=9000 \
   -e PSK=mysecurepsk \
   -e OBFS=off \
   1byte/snell-server
+
+# Using GitHub Container Registry
+docker run --rm -p 9000:9000 \
+  -e PORT=9000 \
+  -e PSK=mysecurepsk \
+  -e OBFS=off \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ### Complete configuration example
 
 ```bash
+# Using Docker Hub
 docker run --rm -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
@@ -112,6 +183,16 @@ docker run --rm -p 8234:8234 \
   -e OBFS_HOST=gateway.icloud.com \
   -e TFO=false \
   1byte/snell-server
+
+# Using GitHub Container Registry
+docker run --rm -p 8234:8234 \
+  -e PORT=8234 \
+  -e PSK=mysecurepsk \
+  -e IPv6=true \
+  -e OBFS=http \
+  -e OBFS_HOST=gateway.icloud.com \
+  -e TFO=false \
+  ghcr.io/shuidi-l/snell-server
 ```
 
 ## Run with docker-compose
