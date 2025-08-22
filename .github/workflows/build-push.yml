@@ -16,6 +16,9 @@ permissions:
   contents: read
   packages: write
 
+env:
+  VERSION: 5.0.0
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -69,7 +72,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            SNELL_VERSION=5.0.0
+            SNELL_VERSION=${{ env.VERSION }}
 
       # Update Docker Hub README from repo README.md
       - name: Update Docker Hub README
