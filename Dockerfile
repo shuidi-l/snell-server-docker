@@ -27,7 +27,6 @@ FROM ubuntu:24.04
 
 ARG BUILD_DIR="build"
 ARG APP_USER="appuser"
-ARG APP_NAME="snell-server"
 ENV PORT= \
     PSK= \
     IPv6= \
