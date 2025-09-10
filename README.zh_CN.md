@@ -22,7 +22,7 @@
 - **多架构支持**：`linux/amd64`、`linux/arm64`
 - **可通过环境变量配置**
 - **安全默认值**：随机端口和随机 32 字符 PSK
-- **最小依赖**：基于 `alpine`
+- **最小依赖**：基于 [frolvlad/alpine-glibc](https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc)，提供 glibc 兼容性
 - **条件配置**：仅在提供值时写入可选字段
 - **输入验证**：在启动前验证 IPv6 和 OBFS 值
 

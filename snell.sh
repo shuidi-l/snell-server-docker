@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu  # ash 没有 pipefail
 
 BIN="${BIN:-/app/snell-server}"
 CONF="${CONF:-/app/snell-server.conf}"
@@ -29,91 +29,76 @@ USAGE
 done
 
 # --- logging / errors ---
-_info()    { printf '%s\n' "==> $*"; }
-_err()     { printf '%s\n' "ERROR: $*" >&2; }
-_die()     { _err "$*"; exit 1; }
-_debug()   { [ "${DEBUG:-0}" -ge 1 ] && printf '%s\n' "[D1] $*"; return 0;}
-_debug2()  { [ "${DEBUG:-0}" -ge 2 ] && printf '%s\n' "[D2] $*"; return 0;}
-_debug3()  { [ "${DEBUG:-0}" -ge 3 ] && printf '%s\n' "[D3] $*"; return 0;}
+_info()   { printf '%s\n' "==> $*"; }
+_err()    { printf '%s\n' "ERROR: $*" >&2; }
+_die()    { _err "$*"; exit 1; }
+_debug()  { [ "${DEBUG:-0}" -ge 1 ] && printf '%s\n' "[D1] $*"; return 0; }
+_debug2() { [ "${DEBUG:-0}" -ge 2 ] && printf '%s\n' "[D2] $*"; return 0; }
+_debug3() { [ "${DEBUG:-0}" -ge 3 ] && printf '%s\n' "[D3] $*"; return 0; }
 
-# trace shell commands at DEBUG>=3 (keep our own logging readable)
+# trace when DEBUG>=3
 if [ "${DEBUG:-0}" -ge 3 ]; then
-  # Don't leak secrets in xtrace; we still keep PSK masked when we print it.
-  export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
+  PS4='+ ${0##*/}:$LINENO: '
   set -x
 fi
 
 # --- helpers ---
 random_port() {
-  local num
-  num="$(od -An -N2 -tu2 /dev/urandom 2>/dev/null | tr -d ' ' || true)"
-  : "${num:=$$}"
+  # 读取 2 字节随机数并转为 1025–65535
+  num="$(od -An -N2 -tu2 /dev/urandom 2>/dev/null | tr -d ' ')"
+  [ -n "$num" ] || num="$$"
   echo $(( (num % 64511) + 1025 ))
 }
 
-# Strip trailing inline comment " # ... "
-_strip_comment() { sed -E 's/[[:space:]]+#.*$//'; }
+# busybox sed：用 -r 而非 -E
+_strip_comment() { sed -r 's/[[:space:]]+#.*$//'; }
 
 # Read "key = value" (first occurrence), trim spaces, strip inline comment
 _read_kv() {
-  local key="$1"
-  [[ -f "$CONF" ]] || return 0
-  sed -n -E "s/^[[:space:]]*${key}[[:space:]]*=[[:space:]]*(.*)$/\1/p" "$CONF" \
+  key="$1"
+  [ -f "$CONF" ] || return 0
+  sed -n -r "s/^[[:space:]]*${key}[[:space:]]*=[[:space:]]*(.*)$/\1/p" "$CONF" \
     | _strip_comment \
-    | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+    | sed -r 's/^[[:space:]]+//; s/[[:space:]]+$//' \
     | head -n1
 }
 
 # Extract port from listen = 0.0.0.0:8060 or [::]:8060
 _read_port_from_listen() {
-  [[ -f "$CONF" ]] || return 0
-  local line
-  line="$(_read_kv "listen")"
-  [[ -n "$line" ]] || return 0
-  sed -n -E 's/.*:([0-9]{1,5})[[:space:]]*$/\1/p' <<<"$line" | head -n1
-}
-
-# Run-or-echo wrapper honoring DRY_RUN
-_run() {
-  _debug2 "RUN: $*"
-  if [ "$DRY_RUN" = "1" ]; then
-    printf '[dry-run] %s\n' "$*"
-  else
-    eval "$@"
-  fi
+  [ -f "$CONF" ] || return 0
+  line="$(_read_kv listen)"
+  [ -n "${line:-}" ] || return 0
+  echo "$line" | sed -n -r 's/.*:([0-9]{1,5})[[:space:]]*$/\1/p' | head -n1
 }
 
 # --- defaults (may be overridden by config/env) ---
 _gen_psk() {
-  set +o pipefail
-  LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
-  set -o pipefail
+  # 避免 set -e 受上游 SIGPIPE 影响；ash 无 pipefail
+  LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32 || true
 }
 PORT="${PORT:-$(random_port)}"
 PSK="${PSK:-$(_gen_psk)}"
-IPv6="${IPv6-}"          # true|false
-OBFS="${OBFS-}"          # off|http
-OBFS_HOST="${OBFS_HOST-}"
-TFO="${TFO:-true}"       # true|false
+IPv6="${IPv6:-}"          # true|false
+OBFS="${OBFS:-}"          # off|http
+OBFS_HOST="${OBFS_HOST:-}"
+TFO="${TFO:-true}"        # true|false
 
 # Prefer existing config: populate variables from it if present
 hydrate_from_existing_conf() {
-  [[ -e "$CONF" ]] || return 1
+  [ -e "$CONF" ] || return 1
   _info "Using existing config: $CONF (skip generation)"
-  local v
-  v="$(_read_port_from_listen || true)";  [[ -n "$v" ]] && PORT="$v"
-  v="$(_read_kv "psk" || true)";          [[ -n "$v" ]] && PSK="$v"
-  v="$(_read_kv "ipv6" || true)";         [[ -n "$v" ]] && IPv6="$v"
-  v="$(_read_kv "obfs" || true)";         [[ -n "$v" ]] && OBFS="$v"
-  v="$(_read_kv "obfs-host" || true)";    [[ -n "$v" ]] && OBFS_HOST="$v"
-  v="$(_read_kv "tfo" || true)";          [[ -n "$v" ]] && TFO="$v"
-  _debug "Hydrated from config. PORT=$PORT, PSK=$$PSK, IPv6=${IPv6:-}, OBFS=${OBFS:-}, OBFS_HOST=${OBFS_HOST:-}, TFO=$TFO"
+  v="$(_read_port_from_listen || true)";  [ -n "${v:-}" ] && PORT="$v"
+  v="$(_read_kv psk        || true)";     [ -n "${v:-}" ] && PSK="$v"
+  v="$(_read_kv ipv6       || true)";     [ -n "${v:-}" ] && IPv6="$v"
+  v="$(_read_kv obfs       || true)";     [ -n "${v:-}" ] && OBFS="$v"
+  v="$(_read_kv obfs-host  || true)";     [ -n "${v:-}" ] && OBFS_HOST="$v"
+  v="$(_read_kv tfo        || true)";     [ -n "${v:-}" ] && TFO="$v"
   return 0
 }
 
 ensure() {
-  # BIN sanity (warn-only on dry run)
-  if [[ ! -x "$BIN" ]]; then
+  # BIN sanity（dry-run 时降级为提示）
+  if [ ! -x "$BIN" ]; then
     if [ "$DRY_RUN" = "1" ]; then
       _info "BIN not executable (dry-run): $BIN"
     else
@@ -121,25 +106,27 @@ ensure() {
     fi
   fi
 
-  case "${PORT:-}" in ''|*[!0-9]*) _die "Invalid PORT: ${PORT:-<empty>} (must be an integer 1025–65535)";; esac
-  (( PORT >= 1025 && PORT <= 65535 )) || _die "PORT out of range: $PORT (must be 1025–65535)"
+  case "${PORT:-}" in ''|*[!0-9]*) _die "Invalid PORT: ${PORT:-<empty>} (must be 1025–65535)";; esac
+  if [ "$PORT" -lt 1025 ] || [ "$PORT" -gt 65535 ]; then
+    _die "PORT out of range: $PORT (must be 1025–65535)"
+  fi
 
-  if [[ -n "${IPv6}" && "${IPv6}" != "true" && "${IPv6}" != "false" ]]; then
-    _die "Invalid IPv6: ${IPv6} (must be 'true' or 'false')"
+  if [ -n "${IPv6:-}" ] && [ "$IPv6" != "true" ] && [ "$IPv6" != "false" ]; then
+    _die "Invalid IPv6: $IPv6 (must be 'true' or 'false')"
   fi
-  if [[ -n "${OBFS}" && "${OBFS}" != "off" && "${OBFS}" != "http" ]]; then
-    _die "Invalid OBFS: ${OBFS} (must be 'off' or 'http')"
+  if [ -n "${OBFS:-}" ] && [ "$OBFS" != "off" ] && [ "$OBFS" != "http" ]; then
+    _die "Invalid OBFS: $OBFS (must be 'off' or 'http')"
   fi
-  if [[ -n "${OBFS_HOST}" && "${OBFS}" != "http" ]]; then
-    _info "OBFS_HOST is set but OBFS != http; it will be ignored by Snell."
+  if [ -n "${OBFS_HOST:-}" ] && [ "${OBFS:-}" != "http" ]; then
+    _info "OBFS_HOST is set but OBFS != http; ignored."
   fi
-  if [[ -n "${TFO}" && "${TFO}" != "true" && "${TFO}" != "false" ]]; then
-    _die "Invalid TFO: ${TFO} (must be 'true' or 'false')"
+  if [ -n "${TFO:-}" ] && [ "$TFO" != "true" ] && [ "$TFO" != "false" ]; then
+    _die "Invalid TFO: $TFO (must be 'true' or 'false')"
   fi
 }
 
 write_config_if_missing() {
-  if [[ -e "$CONF" ]]; then
+  if [ -e "$CONF" ]; then
     _debug "Config exists; not writing: $CONF"
     return 0
   fi
@@ -149,10 +136,10 @@ write_config_if_missing() {
     echo "[snell-server]"
     echo "listen = 0.0.0.0:${PORT}"
     echo "psk = ${PSK}"
-    [[ -n "${IPv6}" ]] && echo "ipv6 = ${IPv6}"
-    if [[ -n "${OBFS}" ]]; then
+    [ -n "${IPv6:-}" ] && echo "ipv6 = ${IPv6}"
+    if [ -n "${OBFS:-}" ]; then
       echo "obfs = ${OBFS}"
-      if [[ "${OBFS}" == "http" && -n "${OBFS_HOST}" ]]; then
+      if [ "${OBFS}" = "http" ] && [ -n "${OBFS_HOST:-}" ]; then
         echo "obfs-host = ${OBFS_HOST}"
       fi
     fi
@@ -164,9 +151,9 @@ print_start_info() {
   _info "Starting Snell"
   printf 'PORT: %s\n' "$PORT"
   printf 'PSK: %s\n' "$PSK"
-  [[ -n "${IPv6}" ]] && printf 'IPv6: %s\n' "$IPv6"
-  [[ -n "${OBFS}" ]] && printf 'OBFS: %s\n' "$OBFS"
-  if [[ "${OBFS}" == "http" && -n "${OBFS_HOST}" ]]; then
+  [ -n "${IPv6:-}" ] && printf 'IPv6: %s\n' "$IPv6"
+  [ -n "${OBFS:-}" ] && printf 'OBFS: %s\n' "$OBFS"
+  if [ "${OBFS:-}" = "http" ] && [ -n "${OBFS_HOST:-}" ]; then
     printf 'OBFS_HOST: %s\n' "$OBFS_HOST"
   fi
   printf 'TFO: %s\n' "$TFO"
@@ -180,7 +167,7 @@ main() {
 
   if [ "$DRY_RUN" = "1" ]; then
     _info "Dry-run: not executing snell-server"
-    printf '[dry-run] %q -c %q\n' "$BIN" "$CONF"
+    printf '[dry-run] %s -c %s\n' "$BIN" "$CONF"
     exit 0
   fi
 
