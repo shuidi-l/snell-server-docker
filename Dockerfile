@@ -23,7 +23,7 @@ RUN set -eux; \
 
 
 # ---------- Runtime Stage ----------
-FROM ubuntu:24.04
+FROM frolvlad/alpine-glibc
 
 ARG BUILD_DIR="build"
 ARG APP_USER="appuser"
@@ -39,10 +39,11 @@ WORKDIR /app
 COPY --from=builder /${BUILD_DIR}/snell-server .
 COPY ./snell.sh .
 
-RUN useradd -M -r -s /sbin/nologin ${APP_USER} && \
+RUN adduser -S -D -H -s /sbin/nologin ${APP_USER} && \
+    apk add --no-cache --update libstdc++ && \
     chown -R ${APP_USER} /app
 
 USER ${APP_USER}
 
 
-CMD ["/bin/bash", "/app/snell.sh"]
+CMD ["/bin/sh", "/app/snell.sh"]

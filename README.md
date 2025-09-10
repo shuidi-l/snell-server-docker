@@ -22,7 +22,7 @@ Both images are identical and you can use either one based on your preference.
 - **Multi-architecture support**: `linux/amd64`, `linux/arm64`
 - **Configurable via environment variables**
 - **Secure defaults**: random port and random 32-character PSK
-- **Minimal dependencies**: based on `alpine`
+- **Minimal dependencies**: based on [frolvlad/alpine-glibc](https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc) for glibc compatibility
 - **Conditional configuration**: only writes optional fields when values are provided
 - **Input validation**: validates IPv6 and OBFS values before startup
 
