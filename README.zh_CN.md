@@ -3,6 +3,7 @@
 </p>
 
 # Snell Server Docker 镜像
+ [![Build](https://github.com/shuidi-l/snell-server/actions/workflows/build-push.yml/badge.svg)](https://github.com/shuidi-l/snell-server/actions/workflows/build-push.yml) [![Release](https://img.shields.io/github/release/shuidi-l/snell-server.svg?style=flat-square&logo=github&logoColor=fff&color=005AA4)](https://github.com/shuidi-l/snell-server/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/1byte/snell-server.svg?style=&logo=docker)](https://hub.docker.com/r/1byte/snell-server) [![Repository License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/license/mit)
 
 一个轻量级的、支持多架构（`linux/amd64` 和 `linux/arm64`）的 Snell Server Docker 镜像。  
 支持通过环境变量进行配置，当未提供时使用安全默认值：随机 PSK 和随机端口（>1024）。

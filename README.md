@@ -3,6 +3,7 @@
 </p>
 
 # Snell Server Docker Image
+ [![Build](https://github.com/shuidi-l/snell-server/actions/workflows/build-push.yml/badge.svg)](https://github.com/shuidi-l/snell-server/actions/workflows/build-push.yml) [![Release](https://img.shields.io/github/release/shuidi-l/snell-server.svg?style=flat-square&logo=github&logoColor=fff&color=005AA4)](https://github.com/shuidi-l/snell-server/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/1byte/snell-server.svg?style=&logo=docker)](https://hub.docker.com/r/1byte/snell-server) [![Repository License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/license/mit)
 
 A lightweight, multi-architecture (`linux/amd64` and `linux/arm64`) Docker image for Snell Server.  
 Supports configuration via environment variables, with secure defaults when not provided: random PSK and random port (>1024).
