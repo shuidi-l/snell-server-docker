@@ -8,6 +8,7 @@
 A lightweight, multi-architecture (`linux/amd64` and `linux/arm64`) Docker image for Snell Server.  
 Supports configuration via environment variables, with secure defaults when not provided: random PSK and random port (>1024).
 
+
 ## Available Images
 
 This project provides Docker images from two sources:
@@ -249,3 +250,4 @@ If any validation fails, the server will display an error message and exit with 
 [LICENSE](LICENSE)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server?ref=badge_large&issueType=license)
+
