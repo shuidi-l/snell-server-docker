@@ -3,14 +3,11 @@
 </p>
 
 # Snell Server Docker Image
- [![Build](https://github.com/shuidi-l/snell-server/actions/workflows/build-push.yml/badge.svg)](https://github.com/shuidi-l/snell-server/actions/workflows/build-push.yml) [![Release](https://img.shields.io/github/release/shuidi-l/snell-server.svg?style=flat-square&logo=github&logoColor=fff&color=005AA4)](https://github.com/shuidi-l/snell-server/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/1byte/snell-server.svg?style=&logo=docker)](https://hub.docker.com/r/1byte/snell-server) [![Repository License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/license/mit)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server?ref=badge_shield)
+ [![Build](https://github.com/shuidi-l/snell-server-docker/actions/workflows/build-push.yml/badge.svg)](https://github.com/shuidi-l/snell-server-docker/actions/workflows/build-push.yml) [![Release](https://img.shields.io/github/release/shuidi-l/snell-server-docker.svg?style=flat-square&logo=github&logoColor=fff&color=005AA4)](https://github.com/shuidi-l/snell-server-docker/releases) [![Image Size](https://img.shields.io/docker/image-size/1byte/snell-server?style=&logo=docker)](https://hub.docker.com/r/1byte/snell-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/1byte/snell-server.svg?style=&logo=docker)](https://hub.docker.com/r/1byte/snell-server) [![Docker Stars](https://img.shields.io/docker/stars/1byte/snell-server.svg?style=flat-square&logo=docker)](https://hub.docker.com/r/1byte/snell-server/) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server?ref=badge_small) [![Repository License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/license/mit)
 
 A lightweight, multi-architecture (`linux/amd64` and `linux/arm64`) Docker image for Snell Server.  
 Supports configuration via environment variables, with secure defaults when not provided: random PSK and random port (>1024).
 
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server?ref=badge_large)
 
 ## Available Images
 
@@ -251,3 +248,6 @@ If any validation fails, the server will display an error message and exit with 
 ## License
 
 [LICENSE](LICENSE)
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server?ref=badge_large&issueType=license)
+
