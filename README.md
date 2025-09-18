@@ -8,7 +8,6 @@
 A lightweight, multi-architecture (`linux/amd64` and `linux/arm64`) Docker image for Snell Server.  
 Supports configuration via environment variables, with secure defaults when not provided: random PSK and random port (>1024).
 
-
 ## Available Images
 
 This project provides Docker images from two sources:
@@ -30,14 +29,14 @@ Both images are identical and you can use either one based on your preference.
 
 ## Environment Variables
 
-| Variable    | Default Value               | Description                                 | Validation Rules |
-| ----------- | --------------------------- | ------------------------------------------- | ---------------- |
-| `PORT`      | Random 1025–65535           | Listening port                              | Must be integer 1025–65535 |
-| `PSK`       | Random 32-char alphanumeric | Pre-shared key                              | Required |
-| `IPv6`      | Not set (optional)          | Enable IPv6                                 | Must be `true` or `false` if provided |
-| `OBFS`      | Not set (optional)          | Obfuscation mode                            | Must be `off` or `http` if provided |
-| `OBFS_HOST` | Not set (optional)          | Obfuscation host                            | Only used when `OBFS=http` |
-| `TFO`       | `true`                      | Enable TCP Fast Open                        | Boolean |
+| Variable    | Default Value               | Description          | Validation Rules                      |
+| ----------- | --------------------------- | -------------------- | ------------------------------------- |
+| `PORT`      | Random 1025–65535           | Listening port       | Must be integer 1025–65535            |
+| `PSK`       | Random 32-char alphanumeric | Pre-shared key       | Required                              |
+| `IPv6`      | Not set (optional)          | Enable IPv6          | Must be `true` or `false` if provided |
+| `OBFS`      | Not set (optional)          | Obfuscation mode     | Must be `off` or `http` if provided   |
+| `OBFS_HOST` | Not set (optional)          | Obfuscation host     | Only used when `OBFS=http`            |
+| `TFO`       | `true`                      | Enable TCP Fast Open | Boolean                               |
 
 ## Configuration Behavior
 
@@ -50,15 +49,11 @@ The server uses conditional configuration writing:
 
 ## Docker Images
 
-### Docker Hub
-
 ```bash
+# Docker Hub
 docker pull 1byte/snell-server
-```
 
-### GitHub Container Registry (GHCR)
-
-```bash
+# GitHub Container Registry
 docker pull ghcr.io/shuidi-l/snell-server
 ```
 
@@ -68,6 +63,8 @@ docker pull ghcr.io/shuidi-l/snell-server
 
 ```bash
 # Build with default Snell version (5.0.0)
+git clone https://github.com/shuidi-l/snell-server-docker.git
+cd snell-server-docker
 docker build -t 1byte/snell-server .
 
 # Build with specific Snell version
@@ -78,6 +75,7 @@ docker build --build-arg SNELL_VERSION=4.1.1 -t 1byte/snell-server:4.1.1 .
 
 ```bash
 # Build with default Snell version (5.0.0)
+cd snell-server-docker # Please make sure to clone it first before proceeding
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t 1byte/snell-server:latest .
@@ -91,7 +89,7 @@ docker buildx build \
 
 ## Run Examples
 
-### Default config (random port & PSK)
+### Default config (random port & PSK, for testing only)
 
 ```bash
 # Using Docker Hub
@@ -105,79 +103,25 @@ docker run --rm ghcr.io/shuidi-l/snell-server
 
 ```bash
 # Using Docker Hub
-docker run --rm -p 8234:8234 \
+docker run -it -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   1byte/snell-server
 
 # Using GitHub Container Registry
-docker run --rm -p 8234:8234 \
+docker run -it -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
-  ghcr.io/shuidi-l/snell-server
-```
-
-### Enable IPv6
-
-```bash
-# Using Docker Hub
-docker run --rm -p 8234:8234 \
-  -e PORT=8234 \
-  -e PSK=mysecurepsk \
-  -e IPv6=true \
-  1byte/snell-server
-
-# Using GitHub Container Registry
-docker run --rm -p 8234:8234 \
-  -e PORT=8234 \
-  -e PSK=mysecurepsk \
-  -e IPv6=true \
-  ghcr.io/shuidi-l/snell-server
-```
-
-### Enable obfuscation with custom host
-
-```bash
-# Using Docker Hub
-docker run --rm -p 9000:9000 \
-  -e PORT=9000 \
-  -e PSK=mysecurepsk \
-  -e OBFS=http \
-  -e OBFS_HOST=my.domain.com \
-  1byte/snell-server
-
-# Using GitHub Container Registry
-docker run --rm -p 9000:9000 \
-  -e PORT=9000 \
-  -e PSK=mysecurepsk \
-  -e OBFS=http \
-  -e OBFS_HOST=my.domain.com \
-  ghcr.io/shuidi-l/snell-server
-```
-
-### Disable obfuscation
-
-```bash
-# Using Docker Hub
-docker run --rm -p 9000:9000 \
-  -e PORT=9000 \
-  -e PSK=mysecurepsk \
-  -e OBFS=off \
-  1byte/snell-server
-
-# Using GitHub Container Registry
-docker run --rm -p 9000:9000 \
-  -e PORT=9000 \
-  -e PSK=mysecurepsk \
-  -e OBFS=off \
   ghcr.io/shuidi-l/snell-server
 ```
 
 ### Complete configuration example
 
+Please refer to the `Environment Variables` section and adjust them as needed.  For example, you can disable obfuscation by setting: `OBFS=off`
+
 ```bash
 # Using Docker Hub
-docker run --rm -p 8234:8234 \
+docker run -itd -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   -e IPv6=true \
@@ -187,7 +131,7 @@ docker run --rm -p 8234:8234 \
   1byte/snell-server
 
 # Using GitHub Container Registry
-docker run --rm -p 8234:8234 \
+docker run -itd -p 8234:8234 \
   -e PORT=8234 \
   -e PSK=mysecurepsk \
   -e IPv6=true \
@@ -204,7 +148,9 @@ docker run --rm -p 8234:8234 \
 1. Ensure `docker-compose.yml` is in your working directory
 2. Provide environment variables via a `.env` file (recommended) or your shell
 
-Example `.env` (place next to `docker-compose.yml`):
+#### Example `.env` and docker-compose.yml(place next to `docker-compose.yml`):
+
+##### `.env`
 
 ```env
 PORT=8234
@@ -215,13 +161,29 @@ PSK=mysecurepsk
 # OBFS_HOST=gateway.icloud.com
 ```
 
-Start the service:
+##### `docker-compose.yml`
 
-```bash
-docker compose up -d
+```yaml
+services:
+  snell-server:
+    container_name: snell-server
+    restart: always
+    image: 1byte/snell-server:latest
+    ports:
+      - "${PORT:-8234}:${PORT:-8234}"   # Default to 8234 if PORT is not set
+    environment:
+      PORT: "${PORT}"
+      PSK: "${PSK}"
+      # IPv6: "${IPv6}"
+      # TFO: "${TFO}"
+      # OBFS: "${OBFS}"        # Set to "false" to disable; `http` enables it
+      # OBFS_HOST: "${OBFS_HOST}"
+    # volumes:
+    #   - ./snell-server.conf:/app/snell-server.conf
 ```
 
-### Use a custom snell-server.conf
+
+##### Use a custom snell-server.conf
 
 If you already have a `snell-server.conf`, mount it and the script will skip auto-generation:
 
@@ -235,6 +197,45 @@ services:
 
 With this volume mount, the container will use your provided config file and ignore environment variables for generation.
 
+##### Start the service:
+
+```bash
+docker compose up -d
+```
+
+### Surge Client-Side Settings(iOS & macOS)
+
+#### Prerequisites
+
+- Apply for a  public IP address from your ISP
+- Port mapping
+- Optional: A domain and a DNS provider(e.g, Cloudflare, AliCloud).  If you are going to use a DNS provider and your IP is dynamic, I recommend ddns-go for automatic DNS updates. It's a simple and easy-to-use DDNS tool. See [^3] for more details.
+
+Add the following to your Surge configuration file (e.g, Surge.conf), and replace placeholders like `YOUR_FQDN`, `YOUR_PUBLIC_IP`,  `YOUR_DOMAIN`, `${PORT}`,  `${PSK}`,  `MyHome` and `IP-CIDR,192.168.188.0/24` with your actual values.
+
+To learn more about `Surge Policy Groups`, see Surge Policy Group documentation[^1] and Surge Manual[^2]. For more information on Snell, refer to Snell knowledge[^4].
+
+```vim
+[Proxy]
+home = snell, YOUR_FQDN or YOUR_PUBLIC_IP, ${PORT}, psk=${PSK}, version=5, reuse=true
+# If obfuscation is enabled:
+# home = snell, YOUR_PUBLIC_IP or YOUR_FQDN, YOUR_PORT, psk=YOUR_PSK, version=5, obfs=http, obfs-host=YOUR_OBFS_HOST, reuse=true, tfo=true
+...
+[Proxy Group]
+# Define a policy group named `🏠Home` of type `subnet`.  
+# Behavior: If the current Wi-Fi SSID is `MyHome`, connect directly;  
+# otherwise, switch to the `🏠Home` policy group.
+# Please refer to [^1] for more details.
+🏠Home = subnet, default = home, SSID:MyHome = DIRECT
+...
+[Rule]
+IP-CIDR,192.168.188.0/24,🏠Home,no-resolve
+# Modify the following line as needed when using DNS(e.g, Cloudflare or another provider.)
+OR,((DOMAIN,plex.YOUR_DOMAIN), (DOMAIN,vw.YOUR_DOMAIN), (DOMAIN,gitea.YOUR_DOMAIN), (DOMAIN,myns.YOUR_DOMAIN)),🏠Home
+...
+```
+
+
 ## Error Handling
 
 The server validates all input values before starting:
@@ -245,9 +246,14 @@ The server validates all input values before starting:
 
 If any validation fails, the server will display an error message and exit with code 1.
 
+
+[^1]: https://manual.nssurge.com/policy-group/subnet.html
+[^2]: https://manual.nssurge.com/book/understanding-surge/cn/
+[^3]: https://github.com/jeessy2/ddns-go
+[^4]: https://kb.nssurge.com/surge-knowledge-base/release-notes/snell
+
 ## License
 
 [LICENSE](LICENSE)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshuidi-l%2Fsnell-server?ref=badge_large&issueType=license)
-
