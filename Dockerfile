@@ -15,7 +15,7 @@ RUN set -eux; \
       arm64) SNELL_ARCH="linux-aarch64" ;; \
       *) echo "Unsupported TARGETARCH: ${TARGETARCH} (amd64/arm64 only)"; exit 1 ;; \
     esac; \
-    URL="https://dl.nssurge.com/snell/snell-server-v${SNELL_VERSION}-${SNELL_ARCH}.zip" && \
+    URL="https://raw.githubusercontent.com/xOS/Others/refs/heads/master/snell/v3.0.1/snell-server-v${SNELL_VERSION}-${SNELL_ARCH}.zip" && \
     echo "Downloading ${URL}" && \
     wget "${URL}" -O snell.zip  && \
     unzip -q snell.zip && \
