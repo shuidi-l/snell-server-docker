@@ -23,7 +23,7 @@ updates:
     reviewers:
       - "shuidi-l"
 
-- package-ecosystem: "docker-compose"
+  - package-ecosystem: "docker-compose"
     directory: "/"
     schedule:
       interval: "weekly"
